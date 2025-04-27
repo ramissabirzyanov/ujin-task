@@ -1,16 +1,21 @@
-from httpx import AsyncClient
+from httpx import AsyncClient, RequestError
 
 from app.core.settings import settings
 from app.core.logger import logger
-from app.core.schemas import USD
 
 
+balances = {
+    "usd": 60,
+    "rub": 100,
+    "eur": 300,
+}
 
-class Currency:
+
+class CurrencyRate:
+    url_data = settings.FROM_URL
+
     def __init__(self, currency: str):
         self.currency = currency.upper()
-        self.url_data = settings.FROM_URL
-        
 
     async def get_currency_rate(self):
         try:
@@ -24,11 +29,30 @@ class Currency:
         except KeyError:
             logger.error(f"Failed to fetch {self.currency} rate")
             return None
+        except RequestError as e:
+            logger.error(f"Request failed for {self.currency}: {e}")
+            return None
 
 
-class USDService:
-    
+class USDService(CurrencyRate):
+
     def __init__(self, value):
+        super().__init__('USD')
         self.value = value
-        self.url_data = settings.FROM_URL
+
+    async def get_value():
+        return balances['usd']
     
+
+class RUBService(CurrencyRate):
+    def __init__(self, value):
+
+        super().__init__('RUB')
+        self.value = value
+
+class EURService(CurrencyRate):
+    def __init__(self, value):
+
+        super().__init__('EUR')
+        self.value = value
+

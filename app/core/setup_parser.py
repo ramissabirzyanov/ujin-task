@@ -8,11 +8,28 @@ def setup_parser():
     parser.add_argument('--eur', type=float, help='Set amount for EUR')
     parser.add_argument('--period', type=int, required=True, help='Set period (in minutes). Getting data every N minutes')
     parser.add_argument('--debug',  default=False, help='Enable debug mode (0/1/true/false/y/n)')
-    args = parser.parse_args()
+    args, remaining = parser.parse_known_args()
 
-    if not (args.usd or args.rub or args.eur):
+
+    balance = {}
+    try:
+        if len(remaining) % 2 != 0:
+            parser.error(f"Missing value for {remaining[-1]}")
+
+        for cur, value in zip(remaining[::2], remaining[1::2]):
+            if not cur.startswith('--') and len(cur[2:]) != 3:
+                parser.error(f"Expected currency flag, for exapmple usd, eur. Got {cur}")
+            if not value.replace('.', '', 1).isdigit():
+                parser.error(f"Invalid amount for {cur}: {value}.")
+            balance[cur[2:]] = float(value)
+    except ValueError as e:
+        parser.error(f"Invalid format: {e}")
+
+    if not balance:
         parser.error('At least one of --usd, --rub, or --eur must be provided.')
     
+    args.balance = balance
+
     debug_value = str(args.debug).lower()
     if debug_value in ['1', 'true', 'y']:
         args.debug = True
@@ -20,5 +37,4 @@ def setup_parser():
         args.debug = False
     else:
         parser.error('Invalid value for --debug. Use 0, 1, true, false, y, n, True, False, Y, N')
-
     return args
