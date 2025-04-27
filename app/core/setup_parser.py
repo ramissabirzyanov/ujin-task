@@ -1,5 +1,7 @@
 import argparse
 
+from app.core.settings import settings
+
 
 def setup_parser():
     parser = argparse.ArgumentParser(prog='service', description="Let's find out the currency rates!")
@@ -9,7 +11,6 @@ def setup_parser():
     parser.add_argument('--period', type=int, required=True, help='Set period (in minutes). Getting data every N minutes')
     parser.add_argument('--debug',  default=False, help='Enable debug mode (0/1/true/false/y/n)')
     args, remaining = parser.parse_known_args()
-
 
     balance = {}
     try:
@@ -31,9 +32,9 @@ def setup_parser():
     args.balance = balance
 
     debug_value = str(args.debug).lower()
-    if debug_value in ['1', 'true', 'y']:
+    if debug_value in settings.TRUE_VALUE:
         args.debug = True
-    elif debug_value in ['0', 'false', 'n']:
+    elif debug_value in settings.FALSE_VALUE:
         args.debug = False
     else:
         parser.error('Invalid value for --debug. Use 0, 1, true, false, y, n, True, False, Y, N')
