@@ -6,9 +6,8 @@ from collections import defaultdict
 from fastapi import Depends
 
 from app.core.settings import settings
-from app.core.setup_parser import setup_parser
 from app.core.logger import logger
-from app.api.dependencies import get_data_source
+from app.api.dependencies import get_data_source, get_balance
 
 
 class BaseCurrencyRate(ABC):
@@ -54,11 +53,10 @@ class CurrencyService:
     def __init__(
         self,
         data_source: BaseCurrencyRate = Depends(get_data_source),
-        args=Depends(setup_parser)
+        balance=Depends(get_balance)
     ):
         self.data_source = data_source
-        self.currency_rates = {}
-        self._balance = args.balance
+        self._balance = balance
 
     @property
     def balance(self) -> dict:
@@ -83,6 +81,7 @@ class CurrencyService:
         return self.balance[currency]
 
     async def get_all_rates(self) -> dict:
+        currency_rates = {}
         for currency in self.balance:
             if currency == 'rub':
                 continue
@@ -90,14 +89,14 @@ class CurrencyService:
             if not rate:
                 logger.info(f"Something is wrong: {currency} rate is None.")
                 continue
-            self.currency_rates[f'{currency}-rub'] = rate
+            currency_rates[f'{currency}-rub'] = rate
 
-        for currency1, currency2 in combinations(self.currency_rates.keys(), 2):
-            rate1 = self.currency_rates[currency1]
-            rate2 = self.currency_rates[currency2]
-            self.currency_rates[f"{currency1}-{currency2}"] = rate1 / rate2
+        for currency1, currency2 in combinations(currency_rates.keys(), 2):
+            rate1 = currency_rates[currency1]
+            rate2 = currency_rates[currency2]
+            currency_rates[f"{currency1}-{currency2}"] = rate1 / rate2
 
-        return self.currency_rates
+        return currency_rates
 
     async def get_total_amount(self):
         conversions = defaultdict(dict)

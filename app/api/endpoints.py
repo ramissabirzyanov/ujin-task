@@ -14,11 +14,9 @@ router = APIRouter()
 async def get_currency(
     currency: Annotated[str, Path(title="Currency code", pattern="^[a-zA-Z]{3}$")]
 ):
-    currency = currency.upper()
-    pass
+    currency = currency.lower()
 
 
 @router.get('/amount/get', response_model=Currency)
-async def get_amount():
-    service = CurrencyService()
-    return service.get_value()
+async def get_amount(service: CurrencyService = Depends()):
+    return await service.get_total_amount()
