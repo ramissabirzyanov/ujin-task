@@ -3,10 +3,12 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from itertools import combinations
 from collections import defaultdict
+from fastapi import Depends
 
 from app.core.settings import settings
 from app.core.setup_parser import setup_parser
 from app.core.logger import logger
+from app.api.dependencies import get_data_source
 
 
 class BaseCurrencyRate(ABC):
@@ -48,16 +50,36 @@ class CBRCurrencyRate(BaseCurrencyRate):
 
 
 class CurrencyService:
-    def __init__(self, data_source: BaseCurrencyRate = CBRCurrencyRate()):
+    def __init__(
+            self,
+            data_source: BaseCurrencyRate=Depends(get_data_source),
+            args=Depends(setup_parser)
+    ):
         self.data_source = data_source
-        self.currency = None
         self.currency_rates = {}
-        args = setup_parser()
         self._balance = args.balance
 
     @property
     def balance(self) -> dict:
         return self._balance
+    
+    @balance.setter
+    def balance(self, new_balance: dict):
+        if not isinstance(new_balance, dict):
+            raise ValueError("balance must be a dict!")
+        self._balance = new_balance
+        logger.info(f"New balance was setted: {self.balance}")
+
+    def update_balance(self, updates: dict):
+        for currency, delta in updates.items():
+            if currency not in self.balance:
+                raise KeyError(f"There is no {currency} in current balance")
+            old_value = self.balance[currency]
+            self.balance[currency] += delta
+            logger.info(f"Balance {currency}: {old_value} -> {self._balance[currency]}")
+    
+    def get_currency_value(self, currency):
+        return self.balance[currency]
 
     async def get_all_rates(self) -> dict: 
         for currency in self.balance:
@@ -75,7 +97,6 @@ class CurrencyService:
             self.currency_rates[f"{currency1}-{currency2}"] = rate1 / rate2
 
         return self.currency_rates
-
 
     async def get_total_amount(self):
         conversions = defaultdict(dict)
