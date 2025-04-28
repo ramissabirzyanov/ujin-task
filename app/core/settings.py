@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     TRUE_VALUE: tuple = ('1', 'true', 'y')
     FALSE_VALUE: tuple = ('0', 'false', 'n')
 
-
     class Config:
         extra = "allow"
+
 
 settings = Settings()

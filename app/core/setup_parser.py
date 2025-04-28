@@ -4,9 +4,21 @@ from app.core.settings import settings
 
 
 def setup_parser():
-    parser = argparse.ArgumentParser(prog='currency-service', description="Let's find out the currency rates!")
-    parser.add_argument('--period', type=int, required=True, help='Set period (in minutes). Getting data every N minutes')
-    parser.add_argument('--debug',  default=False, help='Enable debug mode (0/1/true/false/y/n)')
+    parser = argparse.ArgumentParser(
+        prog='currency-service',
+        description="Let's find out the currency rates!"
+    )
+    parser.add_argument(
+        '--period',
+        type=int,
+        required=True,
+        help='Set period (in minutes). Getting data every N minutes'
+    )
+    parser.add_argument(
+        '--debug',
+        default=False,
+        help='Enable debug mode (0/1/true/false/y/n)'
+    )
     args, remaining = parser.parse_known_args()
 
     balance = {}
@@ -25,7 +37,7 @@ def setup_parser():
 
     if not balance:
         parser.error('At least one of --usd, --rub, or --eur must be provided.')
-    
+
     args.balance = balance
 
     debug_value = str(args.debug).lower()

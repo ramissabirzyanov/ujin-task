@@ -1,5 +1,6 @@
 import logging
 
+
 def setup_logging(debug=False):
     level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(
@@ -8,5 +9,6 @@ def setup_logging(debug=False):
         handlers=[logging.StreamHandler()]
     )
     return logging.getLogger(__name__)
+
 
 logger = setup_logging(debug=False)

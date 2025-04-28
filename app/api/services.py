@@ -14,7 +14,7 @@ from app.api.dependencies import get_data_source
 class BaseCurrencyRate(ABC):
     def __init__(self, source: str):
         self.source = source
-        
+
     @abstractmethod
     async def get_currency_rate(self, currency: str) -> Optional[float]:
         """Абстрактный метод для получения курса валюты"""
@@ -30,6 +30,7 @@ class BaseCurrencyRate(ABC):
         except RequestError as e:
             logger.error(f"Request to {self.source} failed with error: {e}")
             return None
+
 
 class CBRCurrencyRate(BaseCurrencyRate):
 
@@ -51,9 +52,9 @@ class CBRCurrencyRate(BaseCurrencyRate):
 
 class CurrencyService:
     def __init__(
-            self,
-            data_source: BaseCurrencyRate=Depends(get_data_source),
-            args=Depends(setup_parser)
+        self,
+        data_source: BaseCurrencyRate = Depends(get_data_source),
+        args=Depends(setup_parser)
     ):
         self.data_source = data_source
         self.currency_rates = {}
@@ -62,7 +63,7 @@ class CurrencyService:
     @property
     def balance(self) -> dict:
         return self._balance
-    
+
     @balance.setter
     def balance(self, new_balance: dict):
         if not isinstance(new_balance, dict):
@@ -77,11 +78,11 @@ class CurrencyService:
             old_value = self.balance[currency]
             self.balance[currency] += delta
             logger.info(f"Balance {currency}: {old_value} -> {self._balance[currency]}")
-    
+
     def get_currency_value(self, currency):
         return self.balance[currency]
 
-    async def get_all_rates(self) -> dict: 
+    async def get_all_rates(self) -> dict:
         for currency in self.balance:
             if currency == 'rub':
                 continue
@@ -93,14 +94,14 @@ class CurrencyService:
 
         for currency1, currency2 in combinations(self.currency_rates.keys(), 2):
             rate1 = self.currency_rates[currency1]
-            rate2 = self.currency_rates[currency2] 
+            rate2 = self.currency_rates[currency2]
             self.currency_rates[f"{currency1}-{currency2}"] = rate1 / rate2
 
         return self.currency_rates
 
     async def get_total_amount(self):
         conversions = defaultdict(dict)
-        all_rates = await self.get_all_rates() 
+        all_rates = await self.get_all_rates()
         for pair, rate in all_rates.items():
             currency_from, currency_to = pair.split('-')
 

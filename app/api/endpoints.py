@@ -11,8 +11,10 @@ router = APIRouter()
 
 
 @router.get('/{currency}/get', response_model=Currency)
-async def get_currency(currency: Annotated[str, Path(title="Currency code", pattern="^[a-zA-Z]{3}$")]):
-    currency = currency.upper() 
+async def get_currency(
+    currency: Annotated[str, Path(title="Currency code", pattern="^[a-zA-Z]{3}$")]
+):
+    currency = currency.upper()
     pass
 
 
