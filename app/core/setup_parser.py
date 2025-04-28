@@ -1,4 +1,5 @@
 import argparse
+from decimal import Decimal
 
 from app.core.settings import settings
 
@@ -31,7 +32,7 @@ def setup_parser():
                 parser.error(f"Expected currency flag, for exapmple usd, eur. Got {cur}")
             if not value.replace('.', '', 1).isdigit():
                 parser.error(f"Invalid amount for {cur}: {value}.")
-            balance[cur[2:].lower()] = float(value)
+            balance[cur[2:].lower()] = Decimal(value)
     except ValueError as e:
         parser.error(f"Invalid format: {e}")
 
