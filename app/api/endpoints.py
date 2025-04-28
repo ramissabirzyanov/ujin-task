@@ -3,7 +3,7 @@ from pathlib import Path
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status
 
-from app.api.schemas import Currency
+from app.api.schemas import Currency, CurrencySummary
 from app.api.services import CurrencyService
 
 
@@ -17,6 +17,13 @@ async def get_currency(
     currency = currency.lower()
 
 
-@router.get('/amount/get', response_model=Currency)
+@router.get('/amount/get', response_model=CurrencySummary)
 async def get_amount(service: CurrencyService = Depends()):
-    return await service.get_total_amount()
+    total_sum = await service.get_total_amount()
+    rates = await service.get_all_rates()
+    balance = service.balance
+    return CurrencySummary(
+            balance=balance,
+            rates=rates,
+            total_sum=total_sum
+        )
