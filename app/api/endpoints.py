@@ -3,7 +3,7 @@ from decimal import Decimal
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.schemas import Currency, CurrencySummary, NewBalanceInput
+from app.api.schemas import Currency, CurrencySummary, NewBalanceInput, ModifyBalanceInput
 from app.api.dependencies import get_currency_service
 from app.services.currency_service import CurrencyService
 
@@ -54,7 +54,7 @@ async def set_new_balance(
 
 @router.post('/modify', response_model=dict[str, Decimal])
 async def modify_balance(
-    data: NewBalanceInput,
+    data: ModifyBalanceInput,
     service: CurrencyService = Depends(get_currency_service)
 ):
     service.update_balance(data.new_balance)
