@@ -1,18 +1,16 @@
 from decimal import Decimal, ROUND_HALF_UP
 from itertools import combinations
 from collections import defaultdict
-from fastapi import Depends
 
 from app.core.logger import logger
-from app.api.dependencies import get_data_source, get_balance
 from app.services.rate_service import BaseCurrencyRate
 
 
 class CurrencyService:
     def __init__(
         self,
-        balance: dict = Depends(get_balance),
-        data_source: BaseCurrencyRate = Depends(get_data_source)
+        balance: dict,
+        data_source: BaseCurrencyRate
     ):
         self.data_source = data_source
         self._balance = balance
@@ -31,13 +29,20 @@ class CurrencyService:
     def update_balance(self, updates: dict):
         for currency, delta in updates.items():
             if currency not in self._balance:
-                raise KeyError(f"There is no {currency} in current balance")
+                raise KeyError(
+                    f"There is no currency {currency} in current balance to modify it!"
+                )
             old_value = self._balance[currency]
             self._balance[currency] += delta
             logger.info(f"Balance {currency}: {old_value} -> {self._balance[currency]}")
 
     def get_currency_amount(self, currency: str) -> Decimal:
-        return self.balance[currency]
+        try:
+            amount = self.balance[currency]
+            return amount
+        except KeyError:
+            logger.error(f"Not such {currency} in balance")
+            return None
 
     async def get_all_rates(self) -> dict:
         currency_rates = {}
@@ -55,7 +60,6 @@ class CurrencyService:
             currency_rates[f"{currency1}-{currency2}"] = rate1 / rate2
 
         return currency_rates
-    
 
     async def get_total_amount(self) -> dict[str, Decimal]:
         conversions = defaultdict(dict)

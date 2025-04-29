@@ -14,5 +14,27 @@ class CurrencySummary(BaseModel):
     total_sum: dict[str, Decimal]
 
 
-class BalanceInput(BaseModel):
-    balance: dict[str, Decimal]
+class NewBalanceInput(BaseModel):
+    new_balance: dict[str, Decimal]
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "new_balance": {
+                    "eur": 10, "rub": -20
+                }
+            }
+        }
+
+
+class ModifyBalanceInput(NewBalanceInput):
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "new_balance": {
+                    "usd": 100.50,
+                    "eur": 200.75
+                }
+            }
+        }

@@ -1,6 +1,7 @@
 import argparse
 from decimal import Decimal
 
+from app.core.logger import logger
 from app.core.settings import settings
 
 
@@ -40,6 +41,7 @@ def setup_parser():
         raise ValueError('At least one of --usd, --rub, or --eur must be provided.')
 
     args.balance = balance
+    logger.info(f"Balance has been set: {args.balance}")
 
     debug_value = str(args.debug).lower()
     if debug_value in settings.TRUE_VALUE:
