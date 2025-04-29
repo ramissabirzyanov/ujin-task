@@ -46,7 +46,7 @@ class CurrencyService:
 
     async def get_all_rates(self) -> dict:
         currency_rates = {}
-        currencies = [currency for currency in self.balance if currency != "rub"] #default ['usd', 'eur'] if balance = {}
+        currencies = [currency for currency in self.balance if currency != "rub"]  # default ['usd', 'eur'] if balance = {}
         for currency in currencies:
             rate = await self.data_source.get_currency_rate(currency)
             if not rate:

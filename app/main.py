@@ -18,17 +18,16 @@ async def update_rates_job(service: CurrencyService, period: int):
         await asyncio.sleep(period * 60)
         try:
             rates = await service.get_all_rates()
-            print(f"\n==== Обновление курсов ====")
+            print("\n==== Обновление курсов ====")
             for pair, rate in rates.items():
                 print(f"{pair} = {rate}")
-        except RequestError as e:
+        except RequestError:
             logger.error(f"Can't get rate updates for {pair}")
             return None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    args = setup_parser()
     app.state.cli_args = setup_parser()
     app.state.currency_service = CurrencyService(
         balance=app.state.cli_args.balance,
