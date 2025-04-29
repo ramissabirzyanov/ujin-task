@@ -49,7 +49,7 @@ class CurrencyService:
             if not rate:
                 logger.info(f"Something is wrong: {currency} rate is None.")
                 continue
-            currency_rates[currency] = rate 
+            currency_rates[currency] = rate
 
         for currency1, currency2 in combinations(currencies, 2):
             rate1 = currency_rates[currency1]

@@ -12,3 +12,7 @@ class CurrencySummary(BaseModel):
     balance: dict[str, Decimal]
     rates: dict[str, Decimal]
     total_sum: dict[str, Decimal]
+
+
+class BalanceInput(BaseModel):
+    balance: dict[str, Decimal]

@@ -1,4 +1,4 @@
-from app.api.currency_rates import BaseCurrencyRate, CBRCurrencyRate
+from app.services.rate_service import BaseCurrencyRate, CBRCurrencyRate
 from app.core.setup_parser import setup_parser
 
 

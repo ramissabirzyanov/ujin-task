@@ -1,9 +1,10 @@
 from typing import Annotated
+from decimal import Decimal
 from pathlib import Path
 from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status
 
-from app.api.schemas import Currency, CurrencySummary
+from app.api.schemas import Currency, CurrencySummary, BalanceInput
 from app.services.currency_service import CurrencyService
 
 
@@ -29,3 +30,15 @@ async def get_amount(service: CurrencyService = Depends()):
             rates=rates,
             total_sum=total_sum
         )
+
+
+@router.post('/amount/set', response_model=dict[str, Decimal])
+async def set_new_balance(new_balance_data: BalanceInput, service: CurrencyService = Depends()):
+    service.balance = new_balance_data.balance
+    return service.balance
+
+
+@router.post('/modify', response_model=dict[str, Decimal])
+async def modify_balance(data: BalanceInput, service: CurrencyService = Depends()):
+    service.update_balance(data)
+    return service.balance
