@@ -81,3 +81,4 @@ class CurrencyService:
                 total += other_amount * rate
             result[currency] = round(total, 2)
         return result
+
