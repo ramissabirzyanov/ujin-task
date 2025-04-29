@@ -33,6 +33,7 @@ class BaseCurrencyRate(ABC):
         logger.debug(f"Request headers: {response.request.headers}")
         logger.debug(f"Response status: {response.status_code}")
         logger.debug(f"Response body: {response.text}")
+        return None
 
 
 class CBRCurrencyRate(BaseCurrencyRate):
