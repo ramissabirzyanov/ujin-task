@@ -1,9 +1,9 @@
-from app.services.rate_service import BaseCurrencyRate, CBRCurrencyRate
+from app.services.rate_service import BaseCurrencyRate, cbr_currency_rate
 from app.core.setup_parser import setup_parser
 
 
 def get_data_source() -> BaseCurrencyRate:
-    return CBRCurrencyRate()
+    return cbr_currency_rate
 
 
 def get_balance() -> dict:

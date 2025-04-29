@@ -53,3 +53,6 @@ class CBRCurrencyRate(BaseCurrencyRate):
             return None
         logger.debug(f"Successfully updated {currency} rate: {current_rate}")
         return current_rate
+
+
+cbr_currency_rate = CBRCurrencyRate()
