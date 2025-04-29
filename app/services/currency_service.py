@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from itertools import combinations
 from collections import defaultdict
 from fastapi import Depends
@@ -38,7 +38,7 @@ class CurrencyService:
             self._balance[currency] += delta
             logger.info(f"Balance {currency}: {old_value} -> {self._balance[currency]}")
 
-    def get_currency_amount(self, currency) -> Decimal:
+    def get_currency_amount(self, currency: str) -> Decimal:
         return self.balance[currency]
 
     async def get_all_rates(self) -> dict:
@@ -49,7 +49,7 @@ class CurrencyService:
             if not rate:
                 logger.info(f"Something is wrong: {currency} rate is None.")
                 continue
-            currency_rates[currency] = rate
+            currency_rates[f'{currency}-rub'] = rate
 
         for currency1, currency2 in combinations(currencies, 2):
             rate1 = currency_rates[currency1]
@@ -57,6 +57,7 @@ class CurrencyService:
             currency_rates[f"{currency1}-{currency2}"] = rate1 / rate2
 
         return currency_rates
+    
 
     async def get_total_amount(self) -> dict[str, Decimal]:
         conversions = defaultdict(dict)
@@ -78,6 +79,6 @@ class CurrencyService:
                 except KeyError:
                     logger.error(f"Failed to fetch {other_currency}-{currency} rate")
                     return None
-                total += other_amount * rate
-            result[currency] = round(total, 2)
+                total += other_amount * Decimal(str(rate))
+            result[currency] = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         return result

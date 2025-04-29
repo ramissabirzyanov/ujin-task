@@ -8,7 +8,7 @@ def get_data_source() -> BaseCurrencyRate:
 
 def get_balance() -> dict:
     args = setup_parser()
-    return args.banance
+    return args.balance
 
 
 def get_debug() -> bool:

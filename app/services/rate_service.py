@@ -37,7 +37,7 @@ class CBRCurrencyRate(BaseCurrencyRate):
         response = await self._make_request_to_source()
         if not response:
             return None
-        data = await response.json()
+        data = response.json()
         try:
             current_rate = data["Valute"][currency]["Value"]
         except KeyError:
