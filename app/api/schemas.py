@@ -34,7 +34,8 @@ class ModifyBalanceInput(NewBalanceInput):
         json_schema_extra = {
             "example": {
                 "new_balance": {
-                    "eur": 10, "rub": -20
+                    "eur": 10,
+                    "rub": -20
                 }
             }
         }
