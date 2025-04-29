@@ -37,7 +37,7 @@ def setup_parser():
         parser.error(f"Invalid format: {e}")
 
     if not balance:
-        parser.error('At least one of --usd, --rub, or --eur must be provided.')
+        raise ValueError('At least one of --usd, --rub, or --eur must be provided.')
 
     args.balance = balance
 

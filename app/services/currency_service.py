@@ -4,20 +4,18 @@ from collections import defaultdict
 from fastapi import Depends
 
 from app.core.logger import logger
-from app.api.dependencies import get_data_source, get_balance, get_debug
+from app.api.dependencies import get_data_source, get_balance
 from app.services.rate_service import BaseCurrencyRate
 
 
 class CurrencyService:
     def __init__(
         self,
-        data_source: BaseCurrencyRate = Depends(get_data_source),
-        balance=Depends(get_balance),
-        debug=Depends(get_debug)
+        balance: dict = Depends(get_balance),
+        data_source: BaseCurrencyRate = Depends(get_data_source)
     ):
         self.data_source = data_source
         self._balance = balance
-        self.debug = debug
 
     @property
     def balance(self) -> dict[str, Decimal]:
