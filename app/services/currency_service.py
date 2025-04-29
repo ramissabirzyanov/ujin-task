@@ -5,7 +5,7 @@ from fastapi import Depends
 
 from app.core.logger import logger
 from app.api.dependencies import get_data_source, get_balance, get_debug
-from app.api.currency_rates import BaseCurrencyRate
+from app.services.rate_service import BaseCurrencyRate
 
 
 class CurrencyService:
@@ -38,7 +38,7 @@ class CurrencyService:
             self._balance[currency] += delta
             logger.info(f"Balance {currency}: {old_value} -> {self._balance[currency]}")
 
-    def get_currency_value(self, currency) -> Decimal:
+    def get_currency_amount(self, currency) -> Decimal:
         return self.balance[currency]
 
     async def get_all_rates(self) -> dict:

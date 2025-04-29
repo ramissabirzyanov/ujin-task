@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi import Depends, HTTPException, status
 
 from app.api.schemas import Currency, CurrencySummary
-from app.api.services import CurrencyService
+from app.services.currency_service import CurrencyService
 
 
 router = APIRouter()
@@ -12,9 +12,11 @@ router = APIRouter()
 
 @router.get('/{currency}/get', response_model=Currency)
 async def get_currency(
-    currency: Annotated[str, Path(title="Currency code", pattern="^[a-zA-Z]{3}$")]
+    currency: Annotated[str, Path(title="Currency code", pattern="^[a-zA-Z]{3}$")],
+    service: CurrencyService = Depends()
 ):
     currency = currency.lower()
+    return await service.get_currency_amount(currency)
 
 
 @router.get('/amount/get', response_model=CurrencySummary)
