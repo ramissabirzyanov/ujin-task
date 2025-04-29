@@ -10,8 +10,8 @@ def get_data_source() -> BaseCurrencyRate:
 
 
 def get_balance(request: Request) -> dict:
-    """Абстрагируем получение баланса"""
-    return request.app.state.parsed_args.balance
+    """Получение баланса"""
+    request.app.state.parsed_args.balance
 
 
 def get_currency_service(

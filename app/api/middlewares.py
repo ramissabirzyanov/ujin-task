@@ -2,6 +2,10 @@ import json
 from fastapi import Request, Response
 
 
+# Сначала сделал декоратор и это работало.
+# Но смущало добавление request в каждое представление и
+# синтаксического сахара.
+
 # def log_if_debug(func):
 #     @wraps(func)
 #     async def wrapper(*args, **kwargs):
@@ -22,7 +26,7 @@ from fastapi import Request, Response
 
 
 async def debug_logging_middleware(request: Request, call_next) -> Response:
-    debug = getattr(request.app.state.parsed_args, 'debug', False)
+    debug = getattr(request.app.state, 'cli_args', None) and request.app.state.cli_args.debug
     if not debug:
         return await call_next(request)
 
