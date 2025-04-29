@@ -26,8 +26,8 @@ async def get_amount(service: CurrencyService = Depends()):
     rates = await service.get_all_rates()
     if not total_sum or not rates:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Can't get data from source"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Can't get data from source, try later please."
         )
     balance = service.balance
     return CurrencySummary(

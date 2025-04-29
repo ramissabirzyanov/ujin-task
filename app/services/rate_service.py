@@ -25,15 +25,6 @@ class BaseCurrencyRate(ABC):
         except RequestError as e:
             logger.error(f"Request to {self.source} failed with error: {e}")
             return None
-# ???
-
-    async def _make_request_with_debug(self):
-        response = await self._make_request_to_source()
-        logger.debug(f"Request URL: {response.request.url}")
-        logger.debug(f"Request headers: {response.request.headers}")
-        logger.debug(f"Response status: {response.status_code}")
-        logger.debug(f"Response body: {response.text}")
-        return None
 
 
 class CBRCurrencyRate(BaseCurrencyRate):

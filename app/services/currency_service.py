@@ -59,9 +59,6 @@ class CurrencyService:
         return currency_rates
 
     async def get_total_amount(self) -> dict[str, Decimal]:
-        if self.debug:
-            self.data_source._make_request_with_debug()
-
         conversions = defaultdict(dict)
         all_rates = await self.get_all_rates()
         for pair, rate in all_rates.items():
