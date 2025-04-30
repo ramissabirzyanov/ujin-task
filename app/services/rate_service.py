@@ -8,9 +8,8 @@ from app.core.logger import logger
 
 
 class BaseCurrencyRate(ABC):
-    def __init__(self, source: str, base_currency: str):
+    def __init__(self, source: str):
         self.source = source
-        self.base_currency = base_currency
 
     @abstractmethod
     def get_base_currency_rate_of_source(self) -> Decimal:
@@ -40,10 +39,8 @@ class BaseCurrencyRate(ABC):
 class CBRCurrencyRate(BaseCurrencyRate):
 
     def __init__(self):
-        super().__init__(
-            source=settings.DATA_FROM_CBR,
-            base_currency='rub'
-        )
+        super().__init__(source=settings.DATA_FROM_CBR)
+        self.base_currency='rub'
 
     def get_base_currency_rate_of_source(self):
         return (self.base_currency, Decimal('1'))

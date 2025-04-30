@@ -2,6 +2,7 @@ from typing import Annotated
 from decimal import Decimal
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, status
+from app.core.logger import logger
 
 from app.api.schemas import Currency, CurrencySummary, NewBalanceInput, ModifyBalanceInput
 from app.api.dependencies import get_currency_service

@@ -29,7 +29,7 @@ async def debug_logging_middleware(request: Request, call_next) -> Response:
     debug = getattr(request.app.state, 'cli_args', None) and request.app.state.cli_args.debug
     if not debug:
         return await call_next(request)
-
+    
     print("\n" + "="*50)
     print(f"{request.method} {request.url}")
     print("\nHeaders:")
