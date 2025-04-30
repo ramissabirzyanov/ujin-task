@@ -39,12 +39,3 @@ class ModifyBalanceInput(NewBalanceInput):
                 }
             }
         }
-
-# result = {}
-# from itertools import combinations
-# currency_rates = [('usd', 60), ('eur', 100), ('chy', 10), ('rub', 1)]
-
-# for cur_rate1, cur_rate2 in combinations(currency_rates, 2):
-#     result[f'{cur_rate1[0]}-{cur_rate2[0]}'] = cur_rate1[1]/cur_rate2[1]
-# print(result)
-

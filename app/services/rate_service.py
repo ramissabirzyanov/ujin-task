@@ -39,7 +39,6 @@ class BaseCurrencyRate(ABC):
 
 class CBRCurrencyRate(BaseCurrencyRate):
 
-
     def __init__(self):
         super().__init__(
             source=settings.DATA_FROM_CBR,

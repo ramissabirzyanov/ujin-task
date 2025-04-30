@@ -1,4 +1,4 @@
-from fastapi import Depends, Request
+from fastapi import Request
 
 from app.services.rate_service import BaseCurrencyRate, cbr_currency_rate
 from app.services.currency_service import CurrencyService
@@ -15,4 +15,4 @@ def get_balance(request: Request) -> dict:
 
 
 def get_currency_service(request: Request) -> CurrencyService:
-    return request.app.state.currency_service 
+    return request.app.state.currency_service
