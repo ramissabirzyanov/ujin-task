@@ -7,14 +7,18 @@ from app.services.rate_service import BaseCurrencyRate
 
 
 class CurrencyService:
-    _instance = None
+    # _instance = None
 
-    def __new__(cls, balance: dict, data_source: BaseCurrencyRate):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._balance = balance
-            cls._instance.data_source = data_source
-        return cls._instance
+    # def __new__(cls, balance: dict, data_source: BaseCurrencyRate):
+    #     if cls._instance is None:
+    #         cls._instance = super().__new__(cls)
+    #         cls._instance._balance = balance
+    #         cls._instance.data_source = data_source
+    #     return cls._instance
+
+    def __init__(self, balance: dict, data_source: BaseCurrencyRate):
+        self.data_source = data_source
+        self._balance = balance
 
     @property
     def balance(self) -> dict[str, Decimal]:
@@ -46,21 +50,21 @@ class CurrencyService:
             return None
 
     async def get_all_rates(self) -> dict:
-        currency_rates = {}
-        currencies = [currency for currency in self.balance if currency != "rub"]  # default ['usd', 'eur'] if balance = {}
+        all_rates = {}
+        currency_rates = []
+        currencies = [currency for currency in self.balance if currency != self.data_source.base_currency]  # default ['usd', 'eur', 'rub'] if balance = {}
         for currency in currencies:
-            rate = await self.data_source.get_currency_rate(currency)
+            currency, rate = await self.data_source.get_currency_rate(currency)
             if not rate:
-                logger.error(f"Something is wrong: {currency} rate is None.")
+                logger.info(f"There no rate for currency {currency} on the source: {self.data_source}.")
                 continue
-            currency_rates[f'{currency}-rub'] = rate
+            currency_rates.append((currency,rate))
+        currency_rates.append(self.data_source.get_base_currency_rate_of_source())
 
-        for currency1, currency2 in combinations(currencies, 2):
-            rate1 = currency_rates[currency1]
-            rate2 = currency_rates[currency2]
-            currency_rates[f"{currency1}-{currency2}"] = rate1 / rate2
+        for cur_rate1, cur_rate2 in combinations(currency_rates, 2):
+            all_rates[f'{cur_rate1[0]}-{cur_rate2[0]}'] = cur_rate1[1]/cur_rate2[1]
 
-        return currency_rates
+        return all_rates
 
     async def get_total_amount(self) -> dict[str, Decimal]:
         conversions = defaultdict(dict)

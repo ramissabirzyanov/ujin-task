@@ -14,9 +14,5 @@ def get_balance(request: Request) -> dict:
     return request.app.state.cli_args.balance
 
 
-def get_currency_service(
-    balance: dict = Depends(get_balance),
-    data_source: BaseCurrencyRate = Depends(get_data_source)
-) -> CurrencyService:
-    return CurrencyService(balance, data_source)
-
+def get_currency_service(request: Request) -> CurrencyService:
+    return request.app.state.currency_service 
