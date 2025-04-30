@@ -15,7 +15,6 @@ from app.core.logger import logger
 async def update_rates_job(service: CurrencyService, period: int):
     """Фоновая задача для обновления курсов"""
     while True:
-        await asyncio.sleep(period * 60)
         try:
             rates = await service.get_all_rates()
             print("\n==== Обновление курсов ====")
@@ -23,9 +22,33 @@ async def update_rates_job(service: CurrencyService, period: int):
                 print(f"{pair} = {rate}")
         except RequestError:
             logger.error(f"Can't get rate updates for {pair}")
-            return None
+        await asyncio.sleep(period * 60)
 
+async def monitor_changes(service: CurrencyService):
+    """Фоновая задача для мониторинга изменений"""
+    last_data = None
+    
+    while True:
+        current_data = await service.get_total_amount()
+        
+        if current_data != last_data and last_data is not None:
+            print("\n==== Появились изменения ====")
+            balance = service.balance
+            rates = await service.get_all_rates()
+            sum_to_print = "sum: " + " / ".join([f"{value} {currency}" for currency, value in current_data])
+            for currency, amount in balance.items():
+                print(f"{currency}: {amount}")
+            print("\n")
+            for pair, rate in rates.items():
+                print(f"{pair}: {rate}")
+            print("\n")
+            print(sum_to_print)
+            print("\n")
+            last_data = current_data
 
+        await asyncio.sleep(60) 
+
+            
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.cli_args = setup_parser()
@@ -34,18 +57,27 @@ async def lifespan(app: FastAPI):
         data_source=cbr_currency_rate
     )
 
-    app.state.update_task = asyncio.create_task(
+    update_task = asyncio.create_task(
         update_rates_job(
             service=app.state.currency_service,
             period=app.state.cli_args.period
         )
     )
-    yield
-    app.state.update_task.cancel()
+    monitor_task = asyncio.create_task(
+        monitor_changes(service=app.state.currency_service))
+
+    app.state.update_task = update_task
+    app.state.monitor_task = monitor_task
+
     try:
-        await app.state.update_task
-    except asyncio.CancelledError:
-        logger.info("We are done here")
+        yield
+    finally:
+
+        update_task.cancel()
+        monitor_task.cancel()
+        await asyncio.gather(update_task, monitor_task, return_exceptions=True)
+        logger.info("We are done here!")
+
 
 
 app = FastAPI(lifespan=lifespan)

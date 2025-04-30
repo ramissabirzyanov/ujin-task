@@ -19,6 +19,7 @@ class CurrencyService:
     def __init__(self, balance: dict, data_source: BaseCurrencyRate):
         self.data_source = data_source
         self._balance = balance
+        self.previous_data = None
 
     @property
     def balance(self) -> dict[str, Decimal]:
@@ -102,4 +103,20 @@ class CurrencyService:
                     return None
                 total += other_amount * Decimal(str(rate))
             result[currency] = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+        if self.previous_data is None:
+            self.previous_data = result
+
         return result
+    
+    async def is_data_changed(self) -> bool:
+        """Проверяем, изменилось ли состояние (баланс или курсы)"""
+        
+        current_data = await self.get_total_amount()
+
+        if current_data != self.previous_data:
+            # Если данные изменились, сохраняем их
+            self.previous_data = current_data
+            return True
+
+        return False

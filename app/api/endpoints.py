@@ -14,14 +14,15 @@ router = APIRouter()
 
 @router.get('/amount/get', response_model=CurrencySummary)
 async def get_amount(service: CurrencyService = Depends(get_currency_service)):
+    balance = service.balance
     total_sum = await service.get_total_amount()
     rates = await service.get_all_rates()
+
     if not total_sum or not rates:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Can't get data from source, try later please."
         )
-    balance = service.balance
     return CurrencySummary(
             balance=balance,
             rates=rates,

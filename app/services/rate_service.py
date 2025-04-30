@@ -21,7 +21,7 @@ class BaseCurrencyRate(ABC):
 
     @abstractmethod
     async def get_currency_rate(self, currency: str) -> Optional[tuple[str, Decimal]]:
-        """Абстрактный метод для получения курса валюты"""
+        """Абстрактный метод для получения курса валюты по отношению к основной."""
         pass
 
     async def _make_request_to_source(self) -> Optional[Response]:
