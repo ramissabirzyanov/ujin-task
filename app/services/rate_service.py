@@ -43,9 +43,16 @@ class CBRCurrencyRate(BaseCurrencyRate):
         self.base_currency = 'rub'
 
     def get_base_currency_rate_of_source(self):
+        """
+        Получение кортежа вида (rub, 1.0)
+        Чтобы в дальнейшем удобно получать курс вида {usd-rub: 60}
+        """
         return (self.base_currency, Decimal('1'))
 
     async def get_currency_rate(self, currency: str) -> Optional[tuple[str, Decimal]]:
+        """
+        Данные о курсе валюты к рублю от ЦБР.
+        """
         currency = currency.upper()
         response = await self._make_request_to_source()
         if not response:

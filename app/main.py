@@ -36,7 +36,7 @@ async def monitor_changes(service: CurrencyService):
             print("\n==== Появились изменения ====")
             balance = service.balance
             rates = await service.get_all_rates()
-            sum_to_print = " / ".join([f"{value} {currency}" for currency, value in current_data])
+            sum_to_print = " / ".join([f"{value} {currency}" for currency, value in current_data.items()])
             for currency, amount in balance.items():
                 print(f"{currency}: {amount}")
             print("\n")

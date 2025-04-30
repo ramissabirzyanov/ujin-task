@@ -22,16 +22,25 @@ class CurrencyService:
 
     @property
     def balance(self) -> dict[str, Decimal]:
+        """
+        Получаем баланс через атрибут.
+        """
         return self._balance
 
     @balance.setter
     def balance(self, new_balance: dict[str, Decimal]):
+        """
+        Установка новых данных баланса. Перезапись.
+        """
         if not isinstance(new_balance, dict):
             raise ValueError("balance must be a dict!")
         self._balance = new_balance
         logger.info(f"New balance was set: {self._balance}")
 
     def modify_balance(self, updates: dict):
+        """
+        Изменение значения для валюты из баланса.
+        """
         for currency, delta in updates.items():
             if currency not in self._balance:
                 raise KeyError(
@@ -42,6 +51,9 @@ class CurrencyService:
             logger.info(f"Balance {currency}: {old_value} -> {self._balance[currency]}")
 
     def get_currency_amount(self, currency: str) -> Decimal:
+        """
+        Получаем значение для конкретной валюты из баланса
+        """
         try:
             amount = self.balance[currency]
             return amount
@@ -50,6 +62,9 @@ class CurrencyService:
             return None
 
     async def get_all_rates(self) -> dict:
+        """
+        Получаем все курсы валют из баланса по отношению друг к другу.
+        """
         all_rates = {}
         currency_rates = []
         base_currency, base_currency_rate = self.data_source.get_base_currency_rate_of_source()
@@ -66,7 +81,7 @@ class CurrencyService:
         ]
 
         for currency in currencies:
-            currency, rate = await self.data_source.get_currency_rate(currency)
+            currency, rate = await self.data_source.get_currency_rate(currency)  # не круто.
 
             if not rate:
                 logger.info(f"No rate for currency {currency} on the source: {self.data_source}.")
@@ -81,6 +96,9 @@ class CurrencyService:
         return all_rates
 
     async def get_total_amount(self) -> dict[str, Decimal]:
+        """
+        Получаем общее количество в каждой валюте из баланса.
+        """
         conversions = defaultdict(dict)
         all_rates = await self.get_all_rates()
         for pair, rate in all_rates.items():
@@ -102,8 +120,5 @@ class CurrencyService:
                     return None
                 total += other_amount * Decimal(str(rate))
             result[currency] = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-
-        if self.previous_data is None:
-            self.previous_data = result
 
         return result

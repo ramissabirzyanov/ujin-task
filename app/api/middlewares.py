@@ -26,6 +26,9 @@ from fastapi import Request, Response
 
 
 async def debug_logging_middleware(request: Request, call_next) -> Response:
+    """
+    middleware для вывода данных о запросе/ответе в консоль зависимости от флага debug.
+    """
     debug = getattr(request.app.state, 'cli_args', None) and request.app.state.cli_args.debug
     if not debug:
         return await call_next(request)
