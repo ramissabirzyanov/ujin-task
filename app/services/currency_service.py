@@ -7,13 +7,14 @@ from app.services.rate_service import BaseCurrencyRate
 
 
 class CurrencyService:
-    def __init__(
-        self,
-        balance: dict,
-        data_source: BaseCurrencyRate
-    ):
-        self.data_source = data_source
-        self._balance = balance
+    _instance = None
+
+    def __new__(cls, balance: dict, data_source: BaseCurrencyRate):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._balance = balance
+            cls._instance.data_source = data_source
+        return cls._instance
 
     @property
     def balance(self) -> dict[str, Decimal]:
@@ -26,7 +27,7 @@ class CurrencyService:
         self._balance = new_balance
         logger.info(f"New balance was set: {self._balance}")
 
-    def update_balance(self, updates: dict):
+    def modify_balance(self, updates: dict):
         for currency, delta in updates.items():
             if currency not in self._balance:
                 raise KeyError(

@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 from decimal import Decimal
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -11,7 +11,7 @@ from app.services.currency_service import CurrencyService
 router = APIRouter()
 
 
-@router.get('/amount/get', response_model=Optional[CurrencySummary])
+@router.get('/amount/get', response_model=CurrencySummary)
 async def get_amount(service: CurrencyService = Depends(get_currency_service)):
     total_sum = await service.get_total_amount()
     rates = await service.get_all_rates()
@@ -57,5 +57,5 @@ async def modify_balance(
     data: ModifyBalanceInput,
     service: CurrencyService = Depends(get_currency_service)
 ):
-    service.update_balance(data.new_balance)
+    service.modify_balance(data.new_balance)
     return service.balance

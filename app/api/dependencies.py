@@ -19,3 +19,4 @@ def get_currency_service(
     data_source: BaseCurrencyRate = Depends(get_data_source)
 ) -> CurrencyService:
     return CurrencyService(balance, data_source)
+
