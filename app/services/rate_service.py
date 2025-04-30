@@ -40,7 +40,7 @@ class CBRCurrencyRate(BaseCurrencyRate):
 
     def __init__(self):
         super().__init__(source=settings.DATA_FROM_CBR)
-        self.base_currency='rub'
+        self.base_currency = 'rub'
 
     def get_base_currency_rate_of_source(self):
         return (self.base_currency, Decimal('1'))
