@@ -61,7 +61,7 @@ class CBRCurrencyRate(BaseCurrencyRate):
             logger.error(f"Failed to fetch {currency} rate")
             return None
         logger.debug(f"Successfully updated {currency} rate: {current_rate}")
-        return (currency.lower(), current_rate)
+        return (currency.lower(), Decimal(current_rate))
 
 
 cbr_currency_rate = CBRCurrencyRate()

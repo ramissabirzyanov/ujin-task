@@ -52,6 +52,16 @@ class CurrencyService:
     async def get_all_rates(self) -> dict:
         all_rates = {}
         currency_rates = []
+        base_currency_rate = self.data_source.get_base_currency_rate_of_source()
+        
+        if self.data_source.base_currency in self.balance and len(self.balance) == 1:
+            return {
+                f"{self.data_source.base_currency}-{self.data_source.base_currency}": base_currency_rate[1]
+            }
+
+        if self.data_source.base_currency in self.balance:
+            currency_rates.append(self.data_source.get_base_currency_rate_of_source())
+
         currencies = [currency for currency in self.balance if currency != self.data_source.base_currency]  # default ['usd', 'eur', 'rub'] if balance = {}
         for currency in currencies:
             currency, rate = await self.data_source.get_currency_rate(currency)
@@ -59,10 +69,10 @@ class CurrencyService:
                 logger.info(f"There no rate for currency {currency} on the source: {self.data_source}.")
                 continue
             currency_rates.append((currency,rate))
-        currency_rates.append(self.data_source.get_base_currency_rate_of_source())
 
         for cur_rate1, cur_rate2 in combinations(currency_rates, 2):
-            all_rates[f'{cur_rate1[0]}-{cur_rate2[0]}'] = cur_rate1[1]/cur_rate2[1]
+            cross_rate = cur_rate1[1]/cur_rate2[1]
+            all_rates[f'{cur_rate1[0]}-{cur_rate2[0]}'] = cross_rate.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
         return all_rates
 
