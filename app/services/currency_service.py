@@ -83,8 +83,8 @@ class CurrencyService:
         for currency in currencies:
             currency, rate = await self.data_source.get_currency_rate(currency)  # не круто.
 
-            if not rate:
-                logger.info(f"No rate for currency {currency} on the source: {self.data_source}.")
+            if not currency or not rate:
+                logger.info(f"No rate for {currency} on the source: {self.data_source}.")
                 continue
             currency_rates.append((currency, rate))
 

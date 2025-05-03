@@ -20,6 +20,7 @@ async def update_rates_job(service: CurrencyService, period: int):
             print("\n==== Обновление курсов ====")
             for pair, rate in rates.items():
                 print(f"{pair} = {rate}")
+            print("\n")
         except RequestError:
             logger.error(f"Can't get rate updates for {pair}")
         await asyncio.sleep(period * 60)
@@ -32,11 +33,12 @@ async def monitor_changes(service: CurrencyService):
     while True:
         current_data = await service.get_total_amount()
 
-        if current_data != last_data and last_data is not None:
+        if current_data != last_data and last_data is None:
             print("\n==== Появились изменения ====")
             balance = service.balance
             rates = await service.get_all_rates()
             sum_to_print = " / ".join([f"{value} {currency}" for currency, value in current_data.items()])
+            print("\n")
             for currency, amount in balance.items():
                 print(f"{currency}: {amount}")
             print("\n")
@@ -46,9 +48,7 @@ async def monitor_changes(service: CurrencyService):
             print(f"sum: {sum_to_print}")
             print("\n")
             last_data = current_data
-
         await asyncio.sleep(60)
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -76,7 +76,7 @@ async def lifespan(app: FastAPI):
 
         update_task.cancel()
         monitor_task.cancel()
-        await asyncio.gather(update_task, monitor_task, return_exceptions=True)
+        await asyncio.gather(monitor_task, return_exceptions=True)
         logger.info("We are done here!")
 
 
