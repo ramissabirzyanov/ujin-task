@@ -37,7 +37,9 @@ async def monitor_changes(service: CurrencyService):
             print("\n==== Появились изменения ====")
             balance = service.balance
             rates = await service.get_all_rates()
-            sum_to_print = " / ".join([f"{value} {currency}" for currency, value in current_data.items()])
+            sum_to_print = " / ".join(
+                [f"{value} {currency}" for currency, value in current_data.items()]
+            )
             print("\n")
             for currency, amount in balance.items():
                 print(f"{currency}: {amount}")
@@ -49,6 +51,7 @@ async def monitor_changes(service: CurrencyService):
             print("\n")
             last_data = current_data
         await asyncio.sleep(60)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
