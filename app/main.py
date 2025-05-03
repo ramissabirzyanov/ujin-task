@@ -33,7 +33,7 @@ async def monitor_changes(service: CurrencyService):
     while True:
         current_data = await service.get_total_amount()
 
-        if current_data != last_data and last_data is None:
+        if current_data != last_data or last_data is None:
             print("\n==== Появились изменения ====")
             balance = service.balance
             rates = await service.get_all_rates()
