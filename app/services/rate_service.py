@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from httpx import AsyncClient, RequestError, Response
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
+from itertools import combinations
 
 from app.core.settings import settings
 from app.core.logger import logger
@@ -20,8 +21,13 @@ class BaseCurrencyRate(ABC):
         pass
 
     @abstractmethod
-    async def get_currency_rate(self, currency: str) -> Optional[tuple[str, Decimal]]:
+    async def get_currency_rate(self, currency: str) -> Optional[dict[str, Decimal]]:
         """Абстрактный метод для получения курса валюты по отношению к основной."""
+        pass
+
+    @abstractmethod
+    def output_formattor(self, currency_rates: dict) -> dict:
+        """Абстрактный метод для формата вывода"""
         pass
 
     async def _make_request_to_source(self) -> Optional[Response]:
@@ -47,24 +53,41 @@ class CBRCurrencyRate(BaseCurrencyRate):
         Получение кортежа вида (rub, 1.0)
         Чтобы в дальнейшем удобно получать курс вида {usd-rub: 60}
         """
-        return (self.base_currency, Decimal('1'))
+        return {self.base_currency: Decimal('1')}
 
-    async def get_currency_rate(self, currency: str) -> Optional[tuple[str, Decimal]]:
+    async def get_currency_rate(self, currencies: list) -> Optional[dict[str, Decimal]]:
         """
-        Данные о курсе валюты к рублю от ЦБР.
+        Данные о курсе валюты к рублю от ЦБР. По умолчанию USD и EUR.
         """
-        currency = currency.upper()
+        if self.base_currency in currencies and len(currencies) == 1:
+            currencies.extend(['eur', 'usd'])
+        currency_rate = {}
         response = await self._make_request_to_source()
         if not response:
             return None
         data = response.json()
-        try:
-            current_rate = data["Valute"][currency]["Value"]
-        except KeyError:
-            logger.error(f"Failed to fetch {currency} rate")
-            return None
-        logger.debug(f"Successfully updated {currency} rate: {current_rate}")
-        return (currency.lower(), Decimal(current_rate))
+
+        for currency in currencies:
+            if currency == self.base_currency:
+                continue
+            try:
+                rate = data["Valute"][currency.upper()]["Value"]
+                logger.debug(f"Successfully updated {currency} rate: {rate}")
+                currency_rate[currency] = Decimal(rate)
+            except KeyError:
+                logger.error(f"Failed to fetch {currency} rate")
+                continue
+        return currency_rate | self.get_base_currency_rate_of_source()
+
+    def output_formattor(self, currency_rates: dict) -> dict:
+        readble_output = {}
+        for cur1, cur2 in combinations(currency_rates, 2):
+            rate1 = currency_rates[cur1]
+            rate2 = currency_rates[cur2]
+            cross_rate = rate1/rate2
+            rounded_rate = cross_rate.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            readble_output[f'{cur1}-{cur2}'] = rounded_rate
+        return readble_output
 
 
 cbr_currency_rate = CBRCurrencyRate()

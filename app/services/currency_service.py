@@ -1,5 +1,4 @@
 from decimal import Decimal, ROUND_HALF_UP
-from itertools import combinations
 from collections import defaultdict
 
 from app.core.logger import logger
@@ -63,39 +62,16 @@ class CurrencyService:
 
     async def get_all_rates(self) -> dict:
         """
-        Получаем все курсы валют из баланса по отношению друг к другу.
+        Получаем курсы валют из баланса по отношению к основной валюте,
+        а также по отношению друг к другу.
         """
-        all_rates = {}
-        currency_rates = []
-        base_currency, base_currency_rate = self.data_source.get_base_currency_rate_of_source()
-        if base_currency in self.balance and len(self.balance) == 1:
-            return {
-                f"{base_currency}-{base_currency}": base_currency_rate
-            }
+        currencies = list(self.balance.keys())
+        currency_rates = await self.data_source.get_currency_rate(currencies)
+        rates_to_output = self.data_source.output_formattor(currency_rates)
 
-        currency_rates.append((base_currency, base_currency_rate))
+        return rates_to_output
 
-        # default ['usd', 'eur', 'rub'] if balance = {}?
-        currencies = [
-            currency for currency in self.balance if currency != base_currency
-        ]
-
-        for currency in currencies:
-            currency, rate = await self.data_source.get_currency_rate(currency)  # не круто.
-
-            if not currency or not rate:
-                logger.info(f"No rate for {currency} on the source: {self.data_source}.")
-                continue
-            currency_rates.append((currency, rate))
-
-        for cur_rate1, cur_rate2 in combinations(currency_rates, 2):
-            cross_rate = cur_rate2[1]/cur_rate1[1]
-            rounded_rate = cross_rate.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-            all_rates[f'{cur_rate2[0]}-{cur_rate1[0]}'] = rounded_rate
-
-        return all_rates
-
-    async def get_total_amount(self) -> dict[str, Decimal]:
+    async def get_total_amount(self) -> dict[str, Decimal]:  # на своем ли месте эта функция...?
         """
         Получаем общее количество в каждой валюте из баланса.
         """
@@ -117,7 +93,7 @@ class CurrencyService:
                     rate = conversions[other_currency][currency]
                 except KeyError:
                     logger.error(f"Failed to fetch {other_currency}-{currency} rate")
-                    return None
+                    continue
                 total += other_amount * Decimal(str(rate))
             result[currency] = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
