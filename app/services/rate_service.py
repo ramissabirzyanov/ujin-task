@@ -30,7 +30,7 @@ class BaseCurrencyRate(ABC):
         """Абстрактный метод для формата вывода"""
         pass
 
-    async def _make_request_to_source(self) -> Optional[Response]:
+    async def _make_request_to_source(self) -> Optional[Response]:  # не на своем месте в CBR надо 
         try:
             async with AsyncClient() as client:
                 logger.debug(f"Requesting {self.source}")
@@ -59,8 +59,9 @@ class CBRCurrencyRate(BaseCurrencyRate):
         """
         Данные о курсе валюты к рублю от ЦБР. По умолчанию USD и EUR.
         """
+
         if self.base_currency in currencies and len(currencies) == 1:
-            currencies.extend(['eur', 'usd'])
+            currencies = ['eur', 'usd', self.base_currency]
         currency_rate = {}
         response = await self._make_request_to_source()
         if not response:
