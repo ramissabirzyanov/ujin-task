@@ -1,5 +1,4 @@
 import asyncio
-import uvicorn
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from httpx import RequestError
@@ -86,7 +85,3 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.middleware("http")(debug_logging_middleware)
 app.include_router(api_router, prefix="/api")
-
-if __name__ == "__main__":
-
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=False)
