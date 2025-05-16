@@ -2,29 +2,6 @@ import json
 from fastapi import Request, Response
 
 
-# Сначала сделал декоратор и это работало.
-# Но смущало добавление request в каждое представление и
-# синтаксического сахара.
-
-# def log_if_debug(func):
-#     @wraps(func)
-#     async def wrapper(*args, **kwargs):
-#         request: Request = kwargs.get("request")
-#         debug: bool = get_debug()
-#         result = await func(*args, **kwargs)
-#         if debug:
-#             print(f"Request data:\n Method: {request.method}\n URL: {request.url}")
-#             body = await request.body()
-#             print(f"Request body: {body.decode('utf-8') if body else 'No body'}")
-#             print("Response will be logged after route processing")
-#             status = 200 if result else 503
-#             print(f"Response status: {status}")
-#             print(f"Response body: {result if result else 'No Content'}")
-#             result = None
-#         return result
-#     return wrapper
-
-
 async def debug_logging_middleware(request: Request, call_next) -> Response:
     """
     middleware для вывода данных о запросе/ответе в консоль зависимости от флага debug.

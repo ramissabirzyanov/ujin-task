@@ -6,15 +6,6 @@ from app.services.rate_service import BaseCurrencyRate
 
 
 class CurrencyService:
-    # _instance = None
-
-    # def __new__(cls, balance: dict, data_source: BaseCurrencyRate):
-    #     if cls._instance is None:
-    #         cls._instance = super().__new__(cls)
-    #         cls._instance._balance = balance
-    #         cls._instance.data_source = data_source
-    #     return cls._instance
-
     def __init__(self, balance: dict, data_source: BaseCurrencyRate):
         self.data_source = data_source
         self._balance = balance
