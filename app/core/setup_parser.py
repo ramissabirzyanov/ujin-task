@@ -39,8 +39,10 @@ def setup_parser():
 
     if not balance:
         raise ValueError('At least one of --usd, --rub, or --eur must be provided.')
+        # balance = {'rub': Decimal(0), 'usd': Decimal(0), 'eur': Decimal(0)}
 
     args.balance = balance
+
     logger.info(f"Balance has been set: {args.balance}")
 
     debug_value = str(args.debug).lower()

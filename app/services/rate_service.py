@@ -30,7 +30,7 @@ class BaseCurrencyRate(ABC):
         """Абстрактный метод для формата вывода"""
         pass
 
-    async def _make_request_to_source(self) -> Optional[Response]:  # не на своем месте в CBR надо 
+    async def _make_request_to_source(self) -> Optional[Response]:  # не на своем месте в CBR надо
         try:
             async with AsyncClient() as client:
                 logger.debug(f"Requesting {self.source}")
@@ -50,7 +50,7 @@ class CBRCurrencyRate(BaseCurrencyRate):
 
     def get_base_currency_rate_of_source(self):
         """
-        Получение кортежа вида (rub, 1.0)
+        Получение словаря вида {rub: 1.0}
         Чтобы в дальнейшем удобно получать курс вида {usd-rub: 60}
         """
         return {self.base_currency: Decimal('1')}
@@ -66,7 +66,7 @@ class CBRCurrencyRate(BaseCurrencyRate):
         response = await self._make_request_to_source()
         if not response:
             return None
-        data = response.json()
+        data = response.json()  # по хорошему надо в кэш. Например self._cache = {}
 
         for currency in currencies:
             if currency == self.base_currency:
@@ -87,7 +87,8 @@ class CBRCurrencyRate(BaseCurrencyRate):
             rate2 = currency_rates[cur2]
             cross_rate = rate1/rate2
             rounded_rate = cross_rate.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-            readble_output[f'{cur1}-{cur2}'] = rounded_rate
+            readble_output[f"{cur1}-{cur2}"] = rounded_rate
+            # readble_output[f"{cur1}-{cur2}"] =cross_rate
         return readble_output
 
 

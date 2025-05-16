@@ -68,10 +68,9 @@ class CurrencyService:
         currencies = list(self.balance.keys())
         currency_rates = await self.data_source.get_currency_rate(currencies)
         rates_to_output = self.data_source.output_formattor(currency_rates)
-
         return rates_to_output
 
-    async def get_total_amount(self) -> dict[str, Decimal]:  # на своем ли месте эта функция...?
+    async def get_total_amount(self) -> dict[str, Decimal]:
         """
         Получаем общее количество в каждой валюте из баланса.
         """
@@ -94,7 +93,7 @@ class CurrencyService:
                 except KeyError:
                     logger.error(f"Failed to fetch {other_currency}-{currency} rate")
                     continue
-                total += other_amount * Decimal(str(rate))
+                total += other_amount * rate
             result[currency] = total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
         return result
