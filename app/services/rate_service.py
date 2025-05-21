@@ -30,16 +30,6 @@ class BaseCurrencyRate(ABC):
         """Абстрактный метод для формата вывода"""
         pass
 
-    async def _make_request_to_source(self) -> Optional[Response]:  # не на своем месте в CBR надо
-        try:
-            async with AsyncClient() as client:
-                logger.debug(f"Requesting {self.source}")
-                response = await client.get(self.source)
-                response.raise_for_status()
-                return response
-        except RequestError as e:
-            logger.error(f"Request to {self.source} failed with error: {e}")
-            return None
 
 
 class CBRCurrencyRate(BaseCurrencyRate):
@@ -54,6 +44,17 @@ class CBRCurrencyRate(BaseCurrencyRate):
         Чтобы в дальнейшем удобно получать курс вида {usd-rub: 60}
         """
         return {self.base_currency: Decimal('1')}
+    
+    async def _make_request_to_source(self) -> Optional[Response]:
+        try:
+            async with AsyncClient() as client:
+                logger.debug(f"Requesting {self.source}")
+                response = await client.get(self.source)
+                response.raise_for_status()
+                return response
+        except RequestError as e:
+            logger.error(f"Request to {self.source} failed with error: {e}")
+            return None
 
     async def get_currency_rate(self, currencies: list) -> Optional[dict[str, Decimal]]:
         """
